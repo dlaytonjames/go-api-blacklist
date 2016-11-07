@@ -34,8 +34,6 @@ func GetAppidResult(appid int, content string) (v *Blacklist, err error) {
 	return dbRec, err
 }
 
-/*****************************************************************/
-
 // AddBlacklist insert a new Blacklist into database and returns
 // last inserted Id on success.
 func AddBlacklist(m *Blacklist) (id int64, err error) {
@@ -43,6 +41,15 @@ func AddBlacklist(m *Blacklist) (id int64, err error) {
 	id, err = o.Insert(m)
 	return
 }
+
+//批量添加
+func BatchAddBlacklist(m []Blacklist) (id int64, err error) {
+	o := orm.NewOrm()
+	id, err = o.InsertMulti(100, m)
+	return
+}
+
+/*****************************************************************/
 
 // GetBlacklistById retrieves Blacklist by Id. Returns error if
 // Id doesn't exist

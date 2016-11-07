@@ -54,6 +54,37 @@ func (c *BlacklistController) Add() {
 	c.ServeJSON()
 }
 
+//批量添加黑名单
+func (c *BlacklistController) BatchAdd() {
+	startTime := time.Now()
+	timestamp := int(time.Now().Unix())
+	appid, _ := strconv.Atoi(c.GetString("appid"))
+	content := c.GetString("content")
+	if len(content) == 0 || appid == 0 {
+		c.Data["json"] = JsonFormat(0, "miss params", "", startTime)
+	} else {
+		contentsArray := strings.Split(content, ",")
+		multiRecord := []models.Blacklist{}
+		for _, v := range contentsArray {
+			record := models.Blacklist{
+				Id:        0,
+				Appid:     appid,
+				Content:   v,
+				CreatedAt: timestamp,
+				UpdatedAt: timestamp,
+			}
+			multiRecord = append(multiRecord, record)
+		}
+		if successNumber, err := models.BatchAddBlacklist(multiRecord); err == nil {
+			c.Ctx.Output.SetStatus(200)
+			c.Data["json"] = JsonFormat(1, "success", successNumber, startTime)
+		} else {
+			c.Data["json"] = JsonFormat(0, err.Error(), "", startTime)
+		}
+	}
+	c.ServeJSON()
+}
+
 // @Title 判断黑名单是否属于当前应用
 // @Description 判断黑名单是否属于当前应用
 // @Param	appid		query	string	true		"The key for staticblock"

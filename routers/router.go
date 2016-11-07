@@ -18,6 +18,7 @@ func init() {
 
 		beego.NSNamespace("/blacklist",
 			beego.NSRouter("/add.json", &controllers.BlacklistController{}, "get:Add"),
+			beego.NSRouter("/batch_add.json", &controllers.BlacklistController{}, "get:BatchAdd"),
 			beego.NSRouter("/check.json", &controllers.BlacklistController{}, "get:GetAppidResult"),
 			beego.NSRouter("/list.json", &controllers.BlacklistController{}, "get:GetAll"),
 			beego.NSInclude(
