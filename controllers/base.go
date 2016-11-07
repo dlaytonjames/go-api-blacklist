@@ -15,16 +15,16 @@ func JsonFormat(retcode int, retmsg string, retdata interface{}, stime time.Time
 	cost := time.Now().Sub(stime).Seconds()
 	if retcode == 1 {
 		json = map[string]interface{}{
-			"retcode": retcode,
-			"retdata": retdata,
-			"retmsg":  retmsg,
-			"cost":    cost,
+			"code": retcode,
+			"data": retdata,
+			"desc": retmsg,
+			"cost": cost,
 		}
 	} else {
 		json = map[string]interface{}{
-			"retcode": retcode,
-			"retmsg":  retmsg,
-			"cost":    cost,
+			"code": retcode,
+			"desc": retmsg,
+			"cost": cost,
 		}
 	}
 
