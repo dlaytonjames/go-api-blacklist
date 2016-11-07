@@ -25,13 +25,27 @@ func init() {
 	orm.RegisterModel(new(Blacklist))
 }
 
-// GetBlacklistById retrieves Blacklist by Id. Returns error if
-// Id doesn't exist
-func GetAppidResult(appid int, content string) (v *Blacklist, err error) {
+//判断黑名单是否属于当前应用
+func Check(appid int, content string) (v *Blacklist, err error) {
 	o := orm.NewOrm()
 	dbRec := &Blacklist{}
 	err = o.QueryTable("blacklist").Filter("appid", appid).Filter("content", content).One(dbRec)
 	return dbRec, err
+}
+
+//批量判断黑名单是否属于当前应用
+func BatchCheck(appid int, content []string) (ml []interface{}, err error) {
+	o := orm.NewOrm()
+	dbRec := []Blacklist{}
+	o.QueryTable("blacklist").Filter("appid", appid).Filter("content__in", content).All(&dbRec)
+	// trim unused fields
+	for _, v := range dbRec {
+		if len(v.Content) != 0 {
+			ml = append(ml, v.Content)
+		}
+	}
+
+	return ml, err
 }
 
 // AddBlacklist insert a new Blacklist into database and returns
@@ -47,6 +61,19 @@ func BatchAddBlacklist(m []Blacklist) (id int64, err error) {
 	o := orm.NewOrm()
 	id, err = o.InsertMulti(100, m)
 	return
+}
+
+//删除指定数据
+func DeleteBlacklist(appid int, content string) (err error) {
+	o := orm.NewOrm()
+	//无指定数据，也会返回正确，这个无需担心
+	_, err = o.QueryTable("blacklist").Filter("appid", appid).Filter("content", content).Delete()
+	if err != nil {
+		fmt.Println(err)
+		return err
+	}
+	return nil
+
 }
 
 /*****************************************************************/
@@ -144,34 +171,4 @@ func GetAllBlacklist(query map[string]string, fields []string, sortby []string, 
 		return ml, nil
 	}
 	return nil, err
-}
-
-// UpdateBlacklist updates Blacklist by Id and returns error if
-// the record to be updated doesn't exist
-func UpdateBlacklistById(m *Blacklist) (err error) {
-	o := orm.NewOrm()
-	v := Blacklist{Id: m.Id}
-	// ascertain id exists in the database
-	if err = o.Read(&v); err == nil {
-		var num int64
-		if num, err = o.Update(m); err == nil {
-			fmt.Println("Number of records updated in database:", num)
-		}
-	}
-	return
-}
-
-// DeleteBlacklist deletes Blacklist by Id and returns error if
-// the record to be deleted doesn't exist
-func DeleteBlacklist(id int) (err error) {
-	o := orm.NewOrm()
-	v := Blacklist{Id: id}
-	// ascertain id exists in the database
-	if err = o.Read(&v); err == nil {
-		var num int64
-		if num, err = o.Delete(&Blacklist{Id: id}); err == nil {
-			fmt.Println("Number of records deleted in database:", num)
-		}
-	}
-	return
 }

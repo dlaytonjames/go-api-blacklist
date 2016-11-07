@@ -15,8 +15,15 @@ func init() {
 
 	beego.GlobalControllerRouter["yk-black-list/controllers:BlacklistController"] = append(beego.GlobalControllerRouter["yk-black-list/controllers:BlacklistController"],
 		beego.ControllerComments{
-			"GetAppidResult",
+			"Check",
 			`/check.json`,
+			[]string{"get"},
+			nil})
+
+	beego.GlobalControllerRouter["yk-black-list/controllers:BlacklistController"] = append(beego.GlobalControllerRouter["yk-black-list/controllers:BlacklistController"],
+		beego.ControllerComments{
+			"BatchCheck",
+			`/batch_check.json`,
 			[]string{"get"},
 			nil})
 
@@ -32,20 +39,6 @@ func init() {
 			"GetAll",
 			`/list.json`,
 			[]string{"get"},
-			nil})
-
-	beego.GlobalControllerRouter["yk-black-list/controllers:BlacklistController"] = append(beego.GlobalControllerRouter["yk-black-list/controllers:BlacklistController"],
-		beego.ControllerComments{
-			"Put",
-			`/:id`,
-			[]string{"put"},
-			nil})
-
-	beego.GlobalControllerRouter["yk-black-list/controllers:BlacklistController"] = append(beego.GlobalControllerRouter["yk-black-list/controllers:BlacklistController"],
-		beego.ControllerComments{
-			"Delete",
-			`/:id`,
-			[]string{"delete"},
 			nil})
 
 	beego.GlobalControllerRouter["yk-black-list/controllers:ProjectController"] = append(beego.GlobalControllerRouter["yk-black-list/controllers:ProjectController"],

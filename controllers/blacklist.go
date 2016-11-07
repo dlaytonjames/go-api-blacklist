@@ -1,7 +1,6 @@
 package controllers
 
 import (
-	"encoding/json"
 	"strconv"
 	"strings"
 	"time"
@@ -93,12 +92,12 @@ func (c *BlacklistController) BatchAdd() {
 // @Failure 403 :appid is empty
 // @Failure 403 :content is empty
 // @router /check.json [get]
-func (c *BlacklistController) GetAppidResult() {
+func (c *BlacklistController) Check() {
 	startTime := time.Now()
 	idStr := c.GetString("appid")
 	contentStr := c.GetString("content")
 	appid, _ := strconv.Atoi(idStr)
-	v, err := models.GetAppidResult(appid, contentStr)
+	v, err := models.Check(appid, contentStr)
 	if err != nil {
 		c.Data["json"] = JsonFormat(0, err.Error(), "", startTime)
 	} else {
@@ -107,8 +106,43 @@ func (c *BlacklistController) GetAppidResult() {
 	c.ServeJSON()
 }
 
-// @Title Get All
-// @Description get Blacklist
+// @Title 批量判断黑名单是否属于当前应用
+// @Description 批量判断黑名单是否属于当前应用
+// @Param	appid		query	string	true		"The key for staticblock"
+// @Param	content		query	string	true		"The key for staticblock"
+// @Success 200 {object} models.Blacklist
+// @Failure 403 :appid is empty
+// @Failure 403 :content is empty
+// @router /batch_check.json [get]
+func (c *BlacklistController) BatchCheck() {
+	startTime := time.Now()
+	idStr := c.GetString("appid")
+	contentStr := c.GetString("content")
+	contentArray := strings.Split(contentStr, ",")
+	appid, _ := strconv.Atoi(idStr)
+	beego.Notice(contentArray)
+	v, err := models.BatchCheck(appid, contentArray)
+	if err != nil {
+		c.Data["json"] = JsonFormat(0, err.Error(), "", startTime)
+	} else {
+		c.Data["json"] = JsonFormat(1, "success", v, startTime)
+	}
+	c.ServeJSON()
+}
+
+//删除指定数据
+func (c *BlacklistController) Delete() {
+	startTime := time.Now()
+	idStr := c.GetString("appid")
+	contentStr := c.GetString("content")
+	appid, _ := strconv.Atoi(idStr)
+	if err := models.DeleteBlacklist(appid, contentStr); err == nil {
+		c.Data["json"] = JsonFormat(1, "success", "", startTime)
+	} else {
+		c.Data["json"] = JsonFormat(0, err.Error(), "", startTime)
+	}
+	c.ServeJSON()
+}
 
 /**************************************************************************************/
 
@@ -189,46 +223,6 @@ func (c *BlacklistController) GetAll() {
 		c.Data["json"] = JsonFormat(0, err.Error(), "", startTime)
 	} else {
 		c.Data["json"] = JsonFormat(1, "success", l, startTime)
-	}
-	c.ServeJSON()
-}
-
-// @Title Update
-// @Description update the Blacklist
-// @Param	id		path 	string	true		"The id you want to update"
-// @Param	body		body 	models.Blacklist	true		"body for Blacklist content"
-// @Success 200 {object} models.Blacklist
-// @Failure 403 :id is not int
-// @router /:id [put]
-func (c *BlacklistController) Put() {
-	idStr := c.Ctx.Input.Param(":id")
-	id, _ := strconv.Atoi(idStr)
-	v := models.Blacklist{Id: id}
-	if err := json.Unmarshal(c.Ctx.Input.RequestBody, &v); err == nil {
-		if err := models.UpdateBlacklistById(&v); err == nil {
-			c.Data["json"] = "OK"
-		} else {
-			c.Data["json"] = err.Error()
-		}
-	} else {
-		c.Data["json"] = err.Error()
-	}
-	c.ServeJSON()
-}
-
-// @Title Delete
-// @Description delete the Blacklist
-// @Param	id		path 	string	true		"The id you want to delete"
-// @Success 200 {string} delete success!
-// @Failure 403 id is empty
-// @router /:id [delete]
-func (c *BlacklistController) Delete() {
-	idStr := c.Ctx.Input.Param(":id")
-	id, _ := strconv.Atoi(idStr)
-	if err := models.DeleteBlacklist(id); err == nil {
-		c.Data["json"] = "OK"
-	} else {
-		c.Data["json"] = err.Error()
 	}
 	c.ServeJSON()
 }
