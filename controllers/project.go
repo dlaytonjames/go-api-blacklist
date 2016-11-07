@@ -31,7 +31,9 @@ func (c *ProjectController) GetOne() {
 	startTime := time.Now()
 	idStr := c.GetString("appid")
 	appid, _ := strconv.Atoi(idStr)
-	rateLimitRes := util.CheckRateLimit("10.10.10.10", idStr, "GetOne")
+	//原：Checkratelimit(ip，应用id，动作方法)
+	//新：Checkratelimit(应用id，动作方法，动作方法)
+	rateLimitRes := util.CheckRateLimit(idStr, "GetOne", "GetOne")
 	if rateLimitRes == true {
 		c.Data["json"] = JsonFormat(0, "访问过快，请稍后访问!", "", startTime)
 		c.ServeJSON()
