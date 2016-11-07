@@ -14,7 +14,7 @@ import (
 )
 
 func init() {
-	ns := beego.NewNamespace("/v1",
+	ns := beego.NewNamespace("/yk",
 
 		beego.NSNamespace("/blacklist",
 			beego.NSRouter("/add.json", &controllers.BlacklistController{}, "get:Add"),
