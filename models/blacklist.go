@@ -60,6 +60,7 @@ func GetBlacklistById(id int) (v *Blacklist, err error) {
 func GetAllBlacklist(query map[string]string, fields []string, sortby []string, order []string,
 	offset int64, limit int64) (ml []interface{}, err error) {
 	o := orm.NewOrm()
+	fields = []string{"Content"}
 	qs := o.QueryTable(new(Blacklist))
 	// query k=v
 	for k, v := range query {
@@ -116,12 +117,21 @@ func GetAllBlacklist(query map[string]string, fields []string, sortby []string, 
 		} else {
 			// trim unused fields
 			for _, v := range l {
-				m := make(map[string]interface{})
+				/***************/
+				//m := make(map[string]interface{})
+				//val := reflect.ValueOf(v)
+				//for _, fname := range fields {
+				//	m[fname] = val.FieldByName(fname).Interface()
+				//}
+				//ml = append(ml, m)
+				/***************/
+				var m interface{}
 				val := reflect.ValueOf(v)
 				for _, fname := range fields {
-					m[fname] = val.FieldByName(fname).Interface()
+					m = val.FieldByName(fname).Interface()
+					ml = append(ml, m)
 				}
-				ml = append(ml, m)
+
 			}
 		}
 		return ml, nil

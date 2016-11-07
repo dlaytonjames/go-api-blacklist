@@ -6,6 +6,7 @@ import (
 	"strings"
 	"time"
 	"yk-black-list/models"
+	"yk-black-list/util"
 
 	"github.com/astaxie/beego"
 )
@@ -30,6 +31,12 @@ func (c *ProjectController) GetOne() {
 	startTime := time.Now()
 	idStr := c.GetString("appid")
 	appid, _ := strconv.Atoi(idStr)
+	rateLimitRes := util.CheckRateLimit("10.10.10.10", idStr, "GetOne")
+	if rateLimitRes == true {
+		c.Data["json"] = JsonFormat(0, "访问过快，请稍后访问!", "", startTime)
+		c.ServeJSON()
+		return
+	}
 	v, err := models.GetProjectById(appid)
 	if err != nil {
 		c.Data["json"] = JsonFormat(0, "fail", err.Error(), startTime)
