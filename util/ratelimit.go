@@ -1,7 +1,9 @@
 package util
 
 import (
+	"encoding/json"
 	"fmt"
+	"github.com/astaxie/beego"
 	"github.com/astaxie/beego/cache"
 	_ "github.com/astaxie/beego/cache/redis"
 	"github.com/garyburd/redigo/redis"
@@ -38,7 +40,8 @@ func CheckRateLimit(ip, request, action string) bool {
 }
 
 func LoadAllowance(ip, request, action string) (allowance, timestamp string) {
-	rs, err := cache.NewCache("redis", `{"conn":"127.0.0.1:6379", "key":"YK_OAUTH_APP","password":"pass"}`)
+	redisConfig := getRedisConfig()
+	rs, err := cache.NewCache("redis", redisConfig)
 	if err != nil {
 		fmt.Println(err)
 		return
@@ -64,10 +67,26 @@ func GetRateLimitConfig() (limit, timeset int) {
 }
 
 func SaveAllowance(ip, request, action, allowance, current string) {
-	rs, err := cache.NewCache("redis", `{"conn":"127.0.0.1:6379", "key":"YK_OAUTH_APP","password":"pass"}`)
+	redisConfig := getRedisConfig()
+	rs, err := cache.NewCache("redis", redisConfig)
 	if err != nil {
 		fmt.Println(err)
 		return
 	}
 	rs.Put(ip+"_"+request, allowance+"-"+current, 600*time.Second)
+}
+
+func getRedisConfig() string {
+	env := beego.AppConfig.String("runmode")
+	conn := beego.AppConfig.String("redisConn")
+	pass := beego.AppConfig.String("redisPass")
+	name := beego.AppConfig.String("redisName")
+	redisHash := make(map[string]interface{})
+	redisHash["conn"] = conn
+	redisHash["key"] = name
+	if env == "prod" {
+		redisHash["password"] = pass
+	}
+	redisConfig, _ := json.Marshal(redisHash)
+	return string(redisConfig)
 }
