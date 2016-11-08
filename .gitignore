@@ -3,4 +3,6 @@ tests/
 docs/
 swagger/
 lastupdate.tmp
+main.go
+conf/
 yk-black-list
