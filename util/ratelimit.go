@@ -1,6 +1,7 @@
 package util
 
 import (
+	"fmt"
 	"github.com/astaxie/beego/cache"
 	_ "github.com/astaxie/beego/cache/redis"
 	"github.com/garyburd/redigo/redis"
@@ -37,7 +38,11 @@ func CheckRateLimit(ip, request, action string) bool {
 }
 
 func LoadAllowance(ip, request, action string) (allowance, timestamp string) {
-	rs, err := cache.NewCache("redis", `{"conn":"127.0.0.1:6379", "key":"YK_OAUTH_APP"}`)
+	rs, err := cache.NewCache("redis", `{"conn":"127.0.0.1:6379", "key":"YK_OAUTH_APP","password":"pass"}`)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
 	res, _ := (redis.String(rs.Get(ip+"_"+request), err))
 	if len(res) == 0 {
 		currentStr := string(time.Now().Unix())
@@ -59,6 +64,10 @@ func GetRateLimitConfig() (limit, timeset int) {
 }
 
 func SaveAllowance(ip, request, action, allowance, current string) {
-	rs, _ := cache.NewCache("redis", `{"conn":"127.0.0.1:6379", "key":"YK_OAUTH_APP"}`)
+	rs, err := cache.NewCache("redis", `{"conn":"127.0.0.1:6379", "key":"YK_OAUTH_APP","password":"pass"}`)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
 	rs.Put(ip+"_"+request, allowance+"-"+current, 600*time.Second)
 }
