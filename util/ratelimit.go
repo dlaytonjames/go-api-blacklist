@@ -61,8 +61,8 @@ func LoadAllowance(ip, request, action string) (allowance, timestamp string) {
 }
 
 func GetRateLimitConfig() (limit, timeset int) {
-	limit = 100
-	timeset = 600
+	limit, _ = beego.AppConfig.Int("rateLimit")
+	timeset, _ = beego.AppConfig.Int("rateTimeset")
 	return
 }
 
