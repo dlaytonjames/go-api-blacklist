@@ -4,6 +4,6 @@ docs/
 swagger/
 lastupdate.tmp
 main.go
-conf/
+conf/app.conf
 yk-black-list
 LOCAL-README.md
