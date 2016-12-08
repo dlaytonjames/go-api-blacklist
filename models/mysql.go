@@ -24,3 +24,29 @@ func RegisterDB() {
 	orm.RegisterDataBase("default", _DB_Driver, jdbcUrl, 30)
 
 }
+
+func RegisterMasterDB() {
+	dbMasterHost := beego.AppConfig.String("dbMasterHost")
+	dbMasterPort := beego.AppConfig.String("dbMasterPort")
+	dbMasterSchema := beego.AppConfig.String("dbMasterSchema")
+	dbMasterUser := beego.AppConfig.String("dbMasterUser")
+	dbMasterPasswd := beego.AppConfig.String("dbMasterPasswd")
+
+	jdbcMasterUrl := dbMasterUser + ":" + dbMasterPasswd + "@tcp(" + dbMasterHost + ":" + dbMasterPort + ")/" + dbMasterSchema + "?charset=utf8"
+	beego.Info(fmt.Sprintf("connect to mysql master server %v successfully !", dbMasterHost))
+	orm.RegisterDriver(_DB_Driver, orm.DRMySQL)
+	orm.RegisterDataBase("default", _DB_Driver, jdbcMasterUrl, 30)
+}
+
+func RegisterSlaveDB() {
+	dbSlaveHost := beego.AppConfig.String("dbSlaveHost")
+	dbSlavePort := beego.AppConfig.String("dbSlavePort")
+	dbSlaveSchema := beego.AppConfig.String("dbSlaveSchema")
+	dbSlaveUser := beego.AppConfig.String("dbSlaveUser")
+	dbSlavePasswd := beego.AppConfig.String("dbSlavePasswd")
+
+	jdbcSlaveUrl := dbSlaveUser + ":" + dbSlavePasswd + "@tcp(" + dbSlaveHost + ":" + dbSlavePort + ")/" + dbSlaveSchema + "?charset=utf8"
+	beego.Info(fmt.Sprintf("connect to mysql slave server %v successfully !", dbSlaveHost))
+	orm.RegisterDriver(_DB_Driver, orm.DRMySQL)
+	orm.RegisterDataBase("slave", _DB_Driver, jdbcSlaveUrl, 30)
+}
